@@ -1,0 +1,30 @@
+{
+  "name": "sonar_core",
+  "version": "0.0.1",
+  "description": "Re-implementation of Sonar in TypeScript",
+  "main": "index.js",
+  "dependencies": {
+    "@types/clone": "^2.1.1",
+    "@types/node": "^16.4.0",
+    "typescript": "^2.9.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sonar-Programming-Language/sonar_core.git"
+  },
+  "keywords": [
+    "programming",
+    "programming-language",
+    "new-programming-language"
+  ],
+  "author": "Icheka Ozuru",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sonar-Programming-Language/sonar_core/issues"
+  },
+  "homepage": "https://github.com/Sonar-Programming-Language/sonar_core#readme"
+}

@@ -1,6 +1,6 @@
 {
   "name": "sonar_core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Re-implementation of Sonar in TypeScript",
   "main": "index.js",
   "dependencies": {

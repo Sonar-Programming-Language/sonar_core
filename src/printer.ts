@@ -42,6 +42,10 @@ function print(node: Node): string {
       return `return ${print(node.returnValue)};`;
     case ASTKind.String:
       return `"${node.value}"`;
+    case ASTKind.SingleQuote:
+      return `"${node.value}"`;
+    case ASTKind.Print:
+      return `"${node.value}"`;
   }
 }
 

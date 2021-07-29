@@ -1,12 +1,13 @@
 import { Arr, Builtin, Err, Integer, Null, Obj, Str } from "./object";
 import { NULL } from "./evaluator";
+import strings from "./std/strings";
 
 export const builtins: { [key: string]: Builtin } = {
   len: new Builtin(
     (...args: Obj[]): Obj => {
       if (args.length !== 1) {
         return new Err(
-          `wrong number of arguments. expected 1, got ${args.length}`
+          `wrong number of arguments to <built-in len()>. expected 1, got ${args.length}`
         );
       }
 
@@ -102,9 +103,17 @@ export const builtins: { [key: string]: Builtin } = {
   ),
   puts: new Builtin(
     (...args: Obj[]): Null => {
+      // console.log(args[0]);
       const inspected = args.map((arg) => arg.inspect());
       console.log(...inspected);
       return NULL;
     }
   ),
+  ...strings,
 };
+
+export const throwIllegalNumberOfArgumentsError = (fn: string, expected: number, got: number): Err => {
+  return new Err(
+    `illegal number of arguments to <built-in ${fn}>. expected ${expected}, got ${got}`
+  );
+}

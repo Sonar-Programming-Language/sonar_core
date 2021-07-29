@@ -15,7 +15,9 @@ export enum ASTKind {
   PrefixExpression = "PREFIX_EXPRESSION",
   Program = "PROGRAM",
   Return = "RETURN",
-  String = "STRING"
+  String = "STRING",
+  SingleQuote = "SINGLE_QUOTE",
+  Print = "PRINT"
 }
 
 export type Node = Program | Statement | Expression;
@@ -24,7 +26,8 @@ export type Statement =
   | BlockStatement
   | ExpressionStatement
   | LetStatement
-  | ReturnStatment;
+  | ReturnStatment
+  | PrintStatement;
 
 export type Expression =
   | ArrayLiteral
@@ -38,7 +41,9 @@ export type Expression =
   | Integer
   | PrefixExpression
   | InfixExpression
-  | Str;
+  | Str
+  | SingleQuote
+  | PrintStatement;
 
 export type Program = {
   kind: ASTKind.Program;
@@ -66,6 +71,11 @@ export type LetStatement = {
 export type ReturnStatment = {
   kind: ASTKind.Return;
   returnValue: Expression;
+};
+
+export type PrintStatement = {
+  value: Expression;
+  kind: ASTKind.Print;
 };
 
 // Expressions
@@ -137,3 +147,8 @@ export type Str = {
   kind: ASTKind.String;
   value: string;
 };
+
+export type SingleQuote = {
+  kind: ASTKind.SingleQuote,
+  value: string;
+}

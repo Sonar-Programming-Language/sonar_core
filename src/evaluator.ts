@@ -24,7 +24,8 @@ import {
   ReturnValue,
   Str,
   Builtin,
-  Hash
+  Hash,
+  Print
 } from "./object";
 
 const TRUE = new Bool(true);
@@ -105,6 +106,12 @@ export function evaluate(node: Node, environment: Environment): Obj {
     }
     case ASTKind.String:
       return new Str(node.value);
+    case ASTKind.SingleQuote:
+      return new Str(node.value);
+    case ASTKind.Print:
+      const value = evaluate(node.value, environment);
+      if (isError(value)) return value;
+      return new Print(value);
   }
 }
 
@@ -183,7 +190,7 @@ function evalInfixExpression(operator: string, left: Obj, right: Obj): Obj {
   }
 
   return new Err(
-    `type mismatch: ${left.inspect()} ${operator} ${right.inspect()}`
+    `type mismatch: cannot perform arithmetic operation [${operator}] on tokens of types [${left.inspect()}] and [${right.inspect()}]`
   );
 }
 
@@ -239,6 +246,8 @@ function evalIntegerInfixOperator(
       return nativeBooleanToBooleanObject(left.value == right.value);
     case "!=":
       return nativeBooleanToBooleanObject(left.value != right.value);
+    case "%":
+      return new Integer(left.value % right.value);
   }
 
   return new Err(

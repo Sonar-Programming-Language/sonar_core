@@ -65,6 +65,9 @@ export default class Lexer {
       case ">":
         token = this.newToken(TokenKind.GreaterThan, this.ch);
         break;
+      case "%":
+        token = this.newToken(TokenKind.Remainder, this.ch);
+        break;
       case ";":
         token = this.newToken(TokenKind.Semicolon, this.ch);
         break;
@@ -94,6 +97,12 @@ export default class Lexer {
         break;
       case '"':
         token = this.newToken(TokenKind.String, this.readString());
+        break;
+      case '\'':
+        token = this.newToken(TokenKind.SingleQuote, this.readSingleQuote());
+        break;
+      case '$':
+        token = this.newToken(TokenKind.AbbrLet, this.ch);
         break;
       case null:
         token = this.newToken(TokenKind.EOF, "");
@@ -127,6 +136,7 @@ export default class Lexer {
 
   // TODO: unicode support
   private isLetter(ch: string): boolean {
+    return /[a-z]|[A-Z]|\_/.test(ch);
     return ("a" <= ch && ch <= "z") || ("A" <= ch && ch <= "Z") || ch == "_";
   }
 
@@ -158,6 +168,15 @@ export default class Lexer {
     do {
       this.readChar();
     } while (this.ch && this.ch !== '"');
+
+    return this.input.slice(position, this.position);
+  }
+
+  private readSingleQuote(): string {
+    const position = this.position + 1;
+    do {
+      this.readChar();
+    } while (this.ch && this.ch !== '\'');
 
     return this.input.slice(position, this.position);
   }

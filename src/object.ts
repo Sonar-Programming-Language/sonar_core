@@ -28,15 +28,19 @@ class Environment {
 
 // Objects
 
-export interface Obj {
+export interface Obj extends Object {
+  [x: string]: any;
+  type: string;
   inspect(): string;
 }
 
 class Arr implements Obj {
+  type: string;
   elements: Obj[];
 
   constructor(elements: Obj[]) {
     this.elements = elements;
+    this.type = 'Array';
   }
 
   inspect(): string {
@@ -47,9 +51,11 @@ class Arr implements Obj {
 
 class Bool implements Obj {
   value: boolean;
+  type: string;
 
   constructor(value: boolean) {
     this.value = value;
+    this.type = 'Boolean';
   }
 
   inspect(): string {
@@ -57,25 +63,43 @@ class Bool implements Obj {
   }
 }
 
+class Print implements Obj {
+  value: Obj;
+  type: string;
+
+  constructor(value: Obj) {
+    this.value = value;
+    this.type = 'print-statement';
+  }
+
+  inspect(): string {
+    return this.value.inspect();
+  }
+}
+
 type BuiltinFunction = (...args: Obj[]) => Obj;
 
 class Builtin implements Obj {
   function: BuiltinFunction;
+  type: string;
 
   constructor(func: BuiltinFunction) {
     this.function = func;
+    this.type = 'built-in';
   }
 
   inspect(): string {
-    return "builtin function";
+    return "<built-in>";
   }
 }
 
 class Err implements Obj {
   message: string;
+  type: string;
 
   constructor(message: string) {
     this.message = message;
+    this.type = 'Error';
   }
 
   inspect(): string {
@@ -87,6 +111,7 @@ class Func implements Obj {
   parameters: Identifier[];
   body: BlockStatement;
   environment: Environment;
+  type: string;
 
   constructor(
     parameters: Identifier[],
@@ -96,12 +121,13 @@ class Func implements Obj {
     this.parameters = parameters;
     this.body = body;
     this.environment = environment;
+    this.type = 'Function';
   }
 
   inspect(): string {
     const parameters = this.parameters.map(param => param.value).join(", ");
     const body = print(this.body);
-    return `fn(${parameters}) {\n  ${body}\n}`;
+    return `<function(${parameters}) {\n  ${body}\n}`;
   }
 }
 
@@ -116,6 +142,11 @@ export type HashPairs = Map<HashKey, HashPair>;
 
 class Hash implements Obj {
   pairs: HashPairs = new Map();
+  type: string;
+
+  constructor() {
+    this.type = 'Map';
+  }
 
   inspect(): string {
     const pairs = [];
@@ -130,9 +161,11 @@ class Hash implements Obj {
 
 class Integer implements Obj {
   value: number;
+  type: string;
 
   constructor(value: number) {
     this.value = value;
+    this.type = 'Integer';
   }
 
   inspect(): string {
@@ -141,6 +174,12 @@ class Integer implements Obj {
 }
 
 class Null implements Obj {
+  type: string;
+
+  constructor() {
+    this.type = 'Nil-Type';
+  }
+
   inspect(): string {
     // return "";
     return "null";
@@ -149,9 +188,11 @@ class Null implements Obj {
 
 class ReturnValue implements Obj {
   value: Obj;
+  type: string;
 
   constructor(value: Obj) {
     this.value = value;
+    this.type = 'return-statement';
   }
 
   inspect(): string {
@@ -161,9 +202,11 @@ class ReturnValue implements Obj {
 
 class Str implements Obj {
   value: string;
+  type: string;
 
   constructor(value: string) {
     this.value = value;
+    this.type = 'String';
   }
 
   inspect(): string {
@@ -182,5 +225,6 @@ export {
   Integer,
   Null,
   ReturnValue,
-  Str
+  Str,
+  Print
 };

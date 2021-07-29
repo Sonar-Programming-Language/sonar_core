@@ -15,10 +15,12 @@ import {
   Integer,
   LetStatement,
   PrefixExpression,
+  PrintStatement,
   Program,
   ReturnStatment,
   Statement,
-  Str
+  Str,
+  // SingleQuote
 } from "./ast";
 import Lexer from "./lexer";
 import { Token, TokenKind } from "./token";
@@ -46,6 +48,7 @@ const precedences: Partial<Record<TokenKind, Precedence>> = {
   [TokenKind.Minus]: Precedence.Sum,
   [TokenKind.Slash]: Precedence.Product,
   [TokenKind.Asterisk]: Precedence.Product,
+  [TokenKind.Remainder]: Precedence.Product,
   [TokenKind.LParen]: Precedence.Call,
   [TokenKind.LBracket]: Precedence.Index
 };
@@ -56,11 +59,13 @@ class Parser {
   peekToken: Token;
   prefixParseFunctions: Partial<Record<TokenKind, PrefixParseFunction>>;
   infixParseFunctions: Partial<Record<TokenKind, InfixParseFunction>>;
+  errors: Array<String>;
 
   constructor(lexer: Lexer) {
     this.lexer = lexer;
     this.curToken = this.lexer.nextToken();
     this.peekToken = this.lexer.nextToken();
+    this.errors = [];
 
     this.parseArrayLiteral = this.parseArrayLiteral.bind(this);
     this.parseBool = this.parseBool.bind(this);
@@ -75,6 +80,9 @@ class Parser {
     this.parsePrefixExpression = this.parsePrefixExpression.bind(this);
     this.parseInfixExpression = this.parseInfixExpression.bind(this);
     this.parseString = this.parseString.bind(this);
+    this.parseIllegal = this.parseIllegal.bind(this);
+    this.parseSingleQuote = this.parseSingleQuote.bind(this);
+    this.parsePrintStatement = this.parsePrintStatement.bind(this);
 
     this.prefixParseFunctions = {
       [TokenKind.Bang]: this.parsePrefixExpression,
@@ -88,7 +96,9 @@ class Parser {
       [TokenKind.LParen]: this.parseGroupedExpression,
       [TokenKind.Minus]: this.parsePrefixExpression,
       [TokenKind.True]: this.parseBool,
-      [TokenKind.String]: this.parseString
+      [TokenKind.String]: this.parseString,
+      [TokenKind.Illegal]: this.parseIllegal,
+      [TokenKind.SingleQuote]: this.parseSingleQuote,
     };
 
     this.infixParseFunctions = {
@@ -101,7 +111,8 @@ class Parser {
       [TokenKind.LBracket]: this.parseIndexExpression,
       [TokenKind.LessThan]: this.parseInfixExpression,
       [TokenKind.GreaterThan]: this.parseInfixExpression,
-      [TokenKind.LParen]: this.parseCallExpression
+      [TokenKind.LParen]: this.parseCallExpression,
+      [TokenKind.Remainder]: this.parseInfixExpression,
     };
   }
 
@@ -129,9 +140,12 @@ class Parser {
   private parseStatement(): Statement {
     switch (this.curToken.kind) {
       case TokenKind.Let:
+      case TokenKind.AbbrLet:
         return this.parseLetStatement();
       case TokenKind.Return:
         return this.parseReturnStatement();
+      case TokenKind.Print:
+        return this.parsePrintStatement();
       default:
         return this.parseExpressionStatement();
     }
@@ -161,6 +175,15 @@ class Parser {
     };
   }
 
+  private parsePrintStatement(): PrintStatement {
+    const expr = this.parseExpression(Precedence.Lowest);
+
+    return {
+      kind: ASTKind.Print,
+      value: expr
+    }
+  }
+
   private parseReturnStatement(): ReturnStatment {
     this.nextToken();
 
@@ -186,9 +209,10 @@ class Parser {
 
   private expectPeek(tokenType: TokenKind): void {
     if (!this.peekTokenIs(tokenType)) {
-      throw new Error(
-        `expected next token to be ${tokenType}, got ${this.peekToken.kind} instead`
-      );
+      // throw new Error(
+      //   `expected next token to be ${tokenType}, got ${this.peekToken.kind} instead`
+      // );
+      this.errors.push(`Error: expected next ${tokenType}, got ${this.peekToken.kind} instead`);
     }
 
     this.nextToken();
@@ -208,13 +232,27 @@ class Parser {
   }
 
   private parseExpression(precedence: Precedence): Expression {
-    const prefix = this.prefixParseFunctions[this.curToken.kind];
+    let prefix = this.prefixParseFunctions[this.curToken.kind];
 
     if (!prefix) {
-      throw new Error(`No prefix parse function for ${this.curToken.kind}`);
+      // throw new Error(`No prefix parse function for ${this.curToken.kind}`);
+      prefix = this.prefixParseFunctions[TokenKind.Illegal];
+      this.errors.push(`No prefix parse function for ${this.curToken.kind}`);
+      try {
+        switch (this.curToken.kind) {
+          // so that 'print' statements do not throw 'no prefix function' errors
+          case 'PRINT':
+            break;
+
+          default:
+            throw `No prefix parse function for ${this.curToken.kind}`;
+        }
+      } catch (err) {
+        console.log(err);
+      }
     }
 
-    let leftExpression = prefix();
+    let leftExpression = prefix!();
 
     while (
       !this.peekTokenIs(TokenKind.Semicolon) &&
@@ -297,6 +335,7 @@ class Parser {
       expression.kind !== ASTKind.Identifier &&
       expression.kind !== ASTKind.FunctionLiteral
     ) {
+
       throw new Error(
         `parse call expression expected call to be on an identifier or function literal but received ${expression.kind}`
       );
@@ -496,6 +535,20 @@ class Parser {
       kind: ASTKind.String,
       value: this.curToken.literal
     };
+  }
+
+  private parseIllegal(): Str {
+    return {
+      kind: ASTKind.String,
+      value: this.curToken.literal
+    }
+  }
+
+  private parseSingleQuote(): Str {
+    return {
+      kind: ASTKind.String,
+      value: this.curToken.literal,
+    }
   }
 }
 

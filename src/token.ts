@@ -21,6 +21,8 @@ export enum TokenKind {
   Equal = "==",
   NotEqual = "!=",
 
+  Remainder = "%",
+
   // Delimiters
   Comma = ",",
   Semicolon = ";",
@@ -31,6 +33,7 @@ export enum TokenKind {
   RBrace = "}",
   LBracket = "[",
   RBracket = "]",
+  SingleQuote = "'",
 
   // Keywords
   Function = "FUNCTION",
@@ -39,7 +42,9 @@ export enum TokenKind {
   False = "FALSE",
   If = "IF",
   Else = "ELSE",
-  Return = "RETURN"
+  Return = "RETURN",
+  AbbrLet = "$",
+  Print = "PRINT"
 }
 
 export type Token = {
@@ -48,13 +53,14 @@ export type Token = {
 };
 
 const keywords: { [keyword: string]: TokenKind } = {
-  fn: TokenKind.Function,
+  def: TokenKind.Function,
   let: TokenKind.Let,
   true: TokenKind.True,
   false: TokenKind.False,
   if: TokenKind.If,
   else: TokenKind.Else,
-  return: TokenKind.Return
+  return: TokenKind.Return,
+  print: TokenKind.Print
 };
 
 export function lookupIdentifier(identifier: string): TokenKind {

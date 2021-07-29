@@ -173,6 +173,20 @@ class Integer implements Obj {
   }
 }
 
+class Double implements Obj {
+  value: number;
+  type: string;
+
+  constructor(value: number) {
+    this.value = value;
+    this.type = 'Double';
+  }
+
+  inspect(): string {
+    return this.value.toString();
+  }
+}
+
 class Null implements Obj {
   type: string;
 
@@ -226,5 +240,6 @@ export {
   Null,
   ReturnValue,
   Str,
-  Print
+  Print,
+  Double
 };

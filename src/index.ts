@@ -5,15 +5,10 @@ import Parser from "./parser";
 
 
 const input: string = `
-$a = 'Hello';
-$b = 'World';
 
-$c = toTitle("iufdhlk iuhs uayj");
+$c = 10.1;
 
-print c;
-
-    
-
+puts('Answer :>>', 1 + 1.1)
 
 `;
 // const input: string = `
@@ -22,10 +17,12 @@ print c;
 
 const program = new Parser(new Lexer(input)).parseProgram();
 
+// console.log(new Parser(new Lexer(input)).parseProgram().statements.map(e => e))
 // console.log(new Parser(new Lexer(input)))
 
 const res = evaluate(program, new Environment());
 console.log(res.inspect());
+
 // console.log("==========");
 // console.log(program.statements);
 

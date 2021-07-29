@@ -294,11 +294,11 @@ const strings: { [key: string]: Builtin } = {
         }
     ),
 
-    toString: new Builtin(
+    str: new Builtin(
         (...args: Array<Obj>): Obj => {
             if (args.length !== 1)
                 return throwIllegalNumberOfArgumentsError(
-                    'toString()', 1, args.length
+                    'str()', 1, args.length
                 );
 
             return new Str(args[0].value ?? args[0].inspect());

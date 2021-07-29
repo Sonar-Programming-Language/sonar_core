@@ -112,7 +112,8 @@ export default class Lexer {
           const literal = this.readIdentifier();
           return this.newToken(lookupIdentifier(literal), literal);
         } else if (this.isDigit(this.ch)) {
-          return this.newToken(TokenKind.Integer, this.readNumber());
+          const number = this.readNumber();
+          return number[0] == true ? this.newToken(TokenKind.Double, number[1]) : this.newToken(TokenKind.Integer, number[1]);
         } else {
           token = this.newToken(TokenKind.Illegal, this.ch);
         }
@@ -151,16 +152,21 @@ export default class Lexer {
     }
   }
 
-  private readNumber(): string {
+  private readNumber(): [boolean, string] {
     const position = this.position;
+    let isDouble = false;
     while (this.ch && this.isDigit(this.ch)) {
       this.readChar();
+      if (this.ch == TokenKind.Dot) {
+        if (isDouble == false) isDouble = true;
+        else return [isDouble, this.input.slice(position, this.position)];
+      }
     }
-    return this.input.slice(position, this.position);
+    return [isDouble, this.input.slice(position, this.position)];
   }
 
   private isDigit(ch: string): boolean {
-    return "0" <= ch && ch <= "9";
+    return ("0" <= ch && ch <= "9") || ch === '.';
   }
 
   private readString(): string {

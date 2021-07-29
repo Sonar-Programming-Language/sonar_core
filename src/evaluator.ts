@@ -19,6 +19,7 @@ import {
   Err,
   Func,
   Integer,
+  Double,
   Null,
   Obj,
   ReturnValue,
@@ -73,6 +74,8 @@ export function evaluate(node: Node, environment: Environment): Obj {
     }
     case ASTKind.Integer:
       return new Integer(node.value);
+    case ASTKind.Double:
+      return new Double(node.value);
     case ASTKind.Let: {
       const value = evaluate(node.value, environment);
 
@@ -187,6 +190,22 @@ function evalInfixExpression(operator: string, left: Obj, right: Obj): Obj {
   }
   if (left instanceof Str && right instanceof Str) {
     return evalStringInfixOperator(operator, left, right);
+  }
+  // the following three conditions determine the language's strictness 
+  // around evaluating arithmetic operations where 
+  // the two operands are different types and of types Integer and Double 
+  // I'm making it very permissive: 1 + 1.0 = 2.0, 1 + 1.1 = 2.1
+  // This way, devs will not need to convert between Integer and Double
+  // Is this safe? Yes. Not as safe as static typing or strict[er] runtime type checking
+  // but safe enough to use. JavaScript's survived 25+ years like this.
+  if (left instanceof Integer && right instanceof Double) {
+    return evalIntegerInfixOperator(operator, left, right);
+  }
+  if (left instanceof Double && right instanceof Integer) {
+    return evalIntegerInfixOperator(operator, left, right);
+  }
+  if (left instanceof Double && right instanceof Double) {
+    return evalIntegerInfixOperator(operator, left, right);
   }
 
   return new Err(

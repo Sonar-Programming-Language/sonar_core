@@ -104,7 +104,7 @@ export const builtins: { [key: string]: Builtin } = {
   puts: new Builtin(
     (...args: Obj[]): Null => {
       // console.log(args[0]);
-      const inspected = args.map((arg) => arg.inspect());
+      const inspected = args.map((arg) => arg.value ?? arg.inspect());
       console.log(...inspected);
       return NULL;
     }

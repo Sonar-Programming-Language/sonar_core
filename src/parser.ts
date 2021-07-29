@@ -4,6 +4,7 @@ import {
   BlockStatement,
   Bool,
   CallExpression,
+  Double,
   Expression,
   ExpressionStatement,
   FunctionLiteral,
@@ -76,6 +77,7 @@ class Parser {
     this.parseIfExpression = this.parseIfExpression.bind(this);
     this.parseIndexExpression = this.parseIndexExpression.bind(this);
     this.parseInteger = this.parseInteger.bind(this);
+    this.parseDouble = this.parseDouble.bind(this);
     this.parseGroupedExpression = this.parseGroupedExpression.bind(this);
     this.parsePrefixExpression = this.parsePrefixExpression.bind(this);
     this.parseInfixExpression = this.parseInfixExpression.bind(this);
@@ -99,6 +101,7 @@ class Parser {
       [TokenKind.String]: this.parseString,
       [TokenKind.Illegal]: this.parseIllegal,
       [TokenKind.SingleQuote]: this.parseSingleQuote,
+      [TokenKind.Double]: this.parseDouble,
     };
 
     this.infixParseFunctions = {
@@ -467,6 +470,13 @@ class Parser {
     return {
       kind: ASTKind.Integer,
       value: parseInt(this.curToken.literal, 10)
+    };
+  }
+
+  private parseDouble(): Double {
+    return {
+      kind: ASTKind.Double,
+      value: parseFloat(this.curToken.literal)
     };
   }
 

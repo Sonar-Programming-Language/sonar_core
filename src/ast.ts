@@ -11,6 +11,7 @@ export enum ASTKind {
   IndexExpression = "INDEX_EXPRESSION",
   InfixExpression = "INFIX_EXPRESSION",
   Integer = "INTEGER",
+  Double = "DOUBLE",
   Let = "LET",
   PrefixExpression = "PREFIX_EXPRESSION",
   Program = "PROGRAM",
@@ -43,7 +44,8 @@ export type Expression =
   | InfixExpression
   | Str
   | SingleQuote
-  | PrintStatement;
+  | PrintStatement
+  | Double;
 
 export type Program = {
   kind: ASTKind.Program;
@@ -134,6 +136,11 @@ export type InfixExpression = {
 
 export type Integer = {
   kind: ASTKind.Integer;
+  value: number;
+};
+
+export type Double = {
+  kind: ASTKind.Double;
   value: number;
 };
 

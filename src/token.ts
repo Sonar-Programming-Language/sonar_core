@@ -5,6 +5,7 @@ export enum TokenKind {
   // Identifiers + literals
   Ident = "IDENT",
   Integer = "INTEGER",
+  Double = "DOUBLE",
   String = "STRING",
 
   // Operators
@@ -34,6 +35,7 @@ export enum TokenKind {
   LBracket = "[",
   RBracket = "]",
   SingleQuote = "'",
+  Dot = '.',
 
   // Keywords
   Function = "FUNCTION",
